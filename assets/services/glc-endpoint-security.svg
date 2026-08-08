@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" role="img" aria-labelledby="ep-t ep-d" font-family="DM Sans, Segoe UI, sans-serif">
+<title id="ep-t">Managed endpoint security console</title>
+<desc id="ep-d">Example console: 184 of 184 endpoints protected, 1,204 threats blocked this month, 98 percent policy compliance and 4 devices needing attention, with a platform-selection panel and a recent detections list.</desc>
+<rect width="1000" height="600" fill="#1f1f1f"/>
+<text x="28" y="50" fill="#ffffff" font-size="19" font-weight="700" font-family="Syne, sans-serif">Managed endpoint security</text>
+<text x="28" y="72" fill="#8a8a8a" font-size="12">Platform selected per client risk profile · reviewed quarterly</text>
+<circle cx="876" cy="44" r="4" fill="#4ade80"/>
+<text x="888" y="48" fill="#4ade80" font-size="11" font-weight="600" letter-spacing="1.2">MONITORED</text>
+<line x1="28" y1="88" x2="972" y2="88" stroke="#3d3d3d"/>
+<rect x="28.0" y="112" width="225.5" height="92" rx="6" fill="#262626" stroke="#3d3d3d"/>
+<circle cx="44.0" cy="132" r="4" fill="#4ade80"/>
+<text x="56.0" y="136" fill="#8a8a8a" font-size="10" font-weight="600" letter-spacing="1.3">ENDPOINTS PROTECTED</text>
+<text x="44.0" y="172" fill="#ffffff" font-size="29" font-weight="700" font-family="Syne, sans-serif">184<tspan fill="#e6262c" font-size="17">/184</tspan></text>
+<text x="44.0" y="192" fill="#6f6f6f" font-size="10.5">agents reporting</text>
+<rect x="267.5" y="112" width="225.5" height="92" rx="6" fill="#262626" stroke="#3d3d3d"/>
+<circle cx="283.5" cy="132" r="4" fill="#4ade80"/>
+<text x="295.5" y="136" fill="#8a8a8a" font-size="10" font-weight="600" letter-spacing="1.3">THREATS BLOCKED</text>
+<text x="283.5" y="172" fill="#ffffff" font-size="29" font-weight="700" font-family="Syne, sans-serif">1,204<tspan fill="#e6262c" font-size="17"></tspan></text>
+<text x="283.5" y="192" fill="#6f6f6f" font-size="10.5">this month</text>
+<rect x="507.0" y="112" width="225.5" height="92" rx="6" fill="#262626" stroke="#3d3d3d"/>
+<circle cx="523.0" cy="132" r="4" fill="#4ade80"/>
+<text x="535.0" y="136" fill="#8a8a8a" font-size="10" font-weight="600" letter-spacing="1.3">POLICY COMPLIANCE</text>
+<text x="523.0" y="172" fill="#ffffff" font-size="29" font-weight="700" font-family="Syne, sans-serif">98<tspan fill="#e6262c" font-size="17">%</tspan></text>
+<text x="523.0" y="192" fill="#6f6f6f" font-size="10.5">against baseline</text>
+<rect x="746.5" y="112" width="225.5" height="92" rx="6" fill="#262626" stroke="#3d3d3d"/>
+<circle cx="762.5" cy="132" r="4" fill="#e6a826"/>
+<text x="774.5" y="136" fill="#8a8a8a" font-size="10" font-weight="600" letter-spacing="1.3">NEEDS ATTENTION</text>
+<text x="762.5" y="172" fill="#ffffff" font-size="29" font-weight="700" font-family="Syne, sans-serif">4<tspan fill="#e6262c" font-size="17"></tspan></text>
+<text x="762.5" y="192" fill="#6f6f6f" font-size="10.5">3 updates · 1 review</text>
+<rect x="28" y="222" width="465.0" height="212" rx="6" fill="#262626" stroke="#3d3d3d"/>
+<text x="44" y="246" fill="#8a8a8a" font-size="10.5" font-weight="600" letter-spacing="1.3">PLATFORM SELECTION</text>
+<rect x="44" y="264" width="433.0" height="28" rx="4" fill="#2d2d2d"/>
+<circle cx="58" cy="278" r="3.5" fill="#4ade80"/>
+<text x="70" y="282" fill="#c9c9c9" font-size="11.5">Microsoft Defender for Business</text>
+<text x="469.0" y="282" fill="#6f6f6f" font-size="10" text-anchor="end">M365-native estates</text>
+<rect x="44" y="300" width="433.0" height="28" rx="4" fill="#2d2d2d"/>
+<circle cx="58" cy="314" r="3.5" fill="#4ade80"/>
+<text x="70" y="318" fill="#c9c9c9" font-size="11.5">Bitdefender GravityZone</text>
+<text x="469.0" y="318" fill="#6f6f6f" font-size="10" text-anchor="end">Mixed OS, low overhead</text>
+<rect x="44" y="336" width="433.0" height="28" rx="4" fill="#2d2d2d"/>
+<circle cx="58" cy="350" r="3.5" fill="#4ade80"/>
+<text x="70" y="354" fill="#c9c9c9" font-size="11.5">Sophos Intercept X</text>
+<text x="469.0" y="354" fill="#6f6f6f" font-size="10" text-anchor="end">Firewall-integrated sites</text>
+<rect x="44" y="372" width="433.0" height="28" rx="4" fill="#2d2d2d"/>
+<circle cx="58" cy="386" r="3.5" fill="#e6a826"/>
+<text x="70" y="390" fill="#c9c9c9" font-size="11.5">Kaspersky Endpoint Security</text>
+<text x="469.0" y="390" fill="#6f6f6f" font-size="10" text-anchor="end">Where sector rules permit</text>
+<text x="44" y="420" fill="#6f6f6f" font-size="10">Selection and rationale documented for your compliance file.</text>
+<rect x="507.0" y="222" width="465.0" height="212" rx="6" fill="#262626" stroke="#3d3d3d"/>
+<text x="523.0" y="246" fill="#8a8a8a" font-size="10.5" font-weight="600" letter-spacing="1.3">RECENT DETECTIONS</text>
+<text x="523.0" y="282" fill="#c9c9c9" font-size="11.5">Phishing URL blocked</text>
+<text x="523.0" y="298" fill="#6f6f6f" font-size="10">finance-04</text>
+<rect x="896.7" y="271" width="59.3" height="17" rx="8.5" fill="#4ade80" fill-opacity="0.15" stroke="#4ade80" stroke-opacity="0.45"/>
+<text x="926.4" y="283" fill="#4ade80" font-size="9.5" font-weight="600" text-anchor="middle">Blocked</text>
+<text x="523.0" y="318" fill="#c9c9c9" font-size="11.5">Ransomware behaviour halted</text>
+<text x="523.0" y="334" fill="#6f6f6f" font-size="10">ops-11</text>
+<rect x="873.1" y="307" width="82.9" height="17" rx="8.5" fill="#e6262c" fill-opacity="0.15" stroke="#e6262c" stroke-opacity="0.45"/>
+<text x="914.6" y="319" fill="#e6262c" font-size="9.5" font-weight="600" text-anchor="middle">Quarantined</text>
+<text x="523.0" y="354" fill="#c9c9c9" font-size="11.5">Unsigned macro prevented</text>
+<text x="523.0" y="370" fill="#6f6f6f" font-size="10">admin-02</text>
+<rect x="896.7" y="343" width="59.3" height="17" rx="8.5" fill="#4ade80" fill-opacity="0.15" stroke="#4ade80" stroke-opacity="0.45"/>
+<text x="926.4" y="355" fill="#4ade80" font-size="9.5" font-weight="600" text-anchor="middle">Blocked</text>
+<text x="523.0" y="390" fill="#c9c9c9" font-size="11.5">USB device denied by policy</text>
+<text x="523.0" y="406" fill="#6f6f6f" font-size="10">recep-01</text>
+<rect x="896.7" y="379" width="59.3" height="17" rx="8.5" fill="#4ade80" fill-opacity="0.15" stroke="#4ade80" stroke-opacity="0.45"/>
+<text x="926.4" y="391" fill="#4ade80" font-size="9.5" font-weight="600" text-anchor="middle">Blocked</text>
+<rect x="28" y="448" width="944" height="88" rx="6" fill="#262626" stroke="#3d3d3d"/>
+<text x="44" y="472" fill="#8a8a8a" font-size="10.5" font-weight="600" letter-spacing="1.3">COVERAGE BY DEVICE TYPE</text>
+<rect x="44.0" y="488" width="472.8" height="12" rx="3" fill="#4ade80" fill-opacity="0.85"/>
+<rect x="519.8" y="488" width="334.0" height="12" rx="3" fill="#4ade80" fill-opacity="0.85"/>
+<rect x="856.9" y="488" width="76.3" height="12" rx="3" fill="#4ade80" fill-opacity="0.85"/>
+<rect x="936.2" y="488" width="16.8" height="12" rx="3" fill="#e6a826" fill-opacity="1"/>
+<circle cx="47.0" cy="516" r="3.5" fill="#4ade80"/>
+<text x="57.0" y="520" fill="#8a8a8a" font-size="10">Workstations <tspan fill="#ffffff">96</tspan></text>
+<circle cx="275.0" cy="516" r="3.5" fill="#4ade80"/>
+<text x="285.0" y="520" fill="#8a8a8a" font-size="10">Laptops <tspan fill="#ffffff">68</tspan></text>
+<circle cx="503.0" cy="516" r="3.5" fill="#4ade80"/>
+<text x="513.0" y="520" fill="#8a8a8a" font-size="10">Servers <tspan fill="#ffffff">16</tspan></text>
+<circle cx="731.0" cy="516" r="3.5" fill="#e6a826"/>
+<text x="741.0" y="520" fill="#8a8a8a" font-size="10">Mobile <tspan fill="#ffffff">4</tspan></text>
+<text x="28" y="576" fill="#6f6f6f" font-size="10.5">Illustrative view of a managed estate. Vendor names are trademarks of their respective owners.</text>
+</svg>
