@@ -124,7 +124,7 @@
       'form.empresa':   'Empresa',
       'form.empresa.ph':'Nome da empresa',
       'form.email':     'E-mail *',
-      'form.email.ph':  'seu@email.com.br',
+      'form.email.ph':  'voce@empresa.com',
       'form.tel':       'Telefone',
       'form.tel.ph':    '(7778) 173575',
       'form.msg':       'Mensagem *',

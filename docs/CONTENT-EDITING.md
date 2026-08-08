@@ -168,7 +168,7 @@ Images live under `assets/` (`logo/`, `team/`, `services/`, `hero/`,
   `.webp` with the design assuming that format.
 - Keep the **same filename** to swap an image everywhere at once, or update each
   `src`. Pages reference images by both absolute
-  (`https://glctech.com.br/assets/...`) and relative (`./assets/...`) URLs — grep
+  (`https://glctechsec.com/assets/...`) and relative (`./assets/...`) URLs — grep
   the filename to find all uses.
 - Update the `alt` text (and its translation if keyed) when the content changes.
 
@@ -179,7 +179,7 @@ Images live under `assets/` (`logo/`, `team/`, `services/`, `hero/`,
 File: `index.html`, `#contact` → `.contact-items`.
 
 - **E-mail:** the `mailto:` link and the visible address
-  (`contato@glctech.com.br`). The visible value is plain text.
+  (`contact@glctechsec.com`, set via `CONTACT_EMAIL` in `index.html`). The visible value is plain text.
 - **Phone/WhatsApp:** the `tel:+55…` link and the visible number.
 - **Location:** translated (`contact.location.val`).
 

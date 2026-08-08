@@ -1221,6 +1221,7 @@
             <label for="mensagem" data-i18n="form.msg">Message *</label>
             <textarea id="mensagem" name="mensagem" required aria-describedby="err-mensagem" placeholder="Describe your need or infrastructure..." data-i18n="form.msg.ph" data-i18n-attr="placeholder"></textarea>
             <span class="field-error" id="err-mensagem" role="alert"></span>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
           </div>
           <button type="submit" class="form-submit" id="btn-submit">
             <span id="btn-text"><i class="fa-solid fa-paper-plane" style="margin-right:8px;" aria-hidden="true"></i><span data-i18n="form.submit">Send Message</span></span>
@@ -1284,14 +1285,26 @@
   #btn-submit:disabled { opacity:0.6; cursor:not-allowed; }
 </style>
 <script>
-  /* ── Web3Forms ─────────────────────────────────────────────────────────────
-     HOW TO ACTIVATE:
-     1. Visit https://web3forms.com
-     2. Enter contact@glctechsec.com and click "Create Access Key"
-     3. Confirm the e-mail that arrives in your inbox
-     4. Copy the generated key and paste it below in W3F_ACCESS_KEY
+  /* ── Contact form — FormSubmit.co ──────────────────────────────────────────
+     Previously Web3Forms. Its access key decides the destination server-side,
+     so the recipient was invisible in the code — and the key in use delivered
+     to contato@glctech.com.br, not to this site's own address.
+
+     FormSubmit puts the destination in the request itself, which means it is
+     visible here, greppable, and covered by a test. It is also what
+     trabalhe-conosco.html already uses, so the site now has one form pattern.
+
+     ACTIVATION (once): the first real submission sends a confirmation e-mail to
+     the address below with an "Activate Form" link. Until that link is clicked,
+     submissions are accepted by the API but not delivered.
   ─────────────────────────────────────────────────────────────────────────── */
-  var W3F_ACCESS_KEY = '524f9ef9-fb3d-467b-8eee-7b4930e40520';
+  var CONTACT_EMAIL = 'contact@glctechsec.com';
+
+  /* Set this to the deployed relay URL to send through Zoho Mail SMTP from our
+     own domain (see serverless/README.md). While it is empty the form keeps
+     using FormSubmit, so the site never has a window with a dead form.
+     The SMTP password is NOT here and must never be — this file is public. */
+  var CONTACT_ENDPOINT = '';
 
   function clearErrors() {
     ['nome','email','mensagem'].forEach(function(f) {
@@ -1334,35 +1347,49 @@
     var telefone = document.getElementById('telefone').value.trim() || 'Not provided';
     var mensagem = document.getElementById('mensagem').value.trim();
 
-    var payload = {
-      access_key: W3F_ACCESS_KEY,
-      subject: 'New website enquiry — ' + nome,
-      from_name: 'GLCTech Site',
-      replyto: email,
-      nome: nome,
-      empresa: empresa,
-      email: email,
-      telefone: telefone,
-      message: 'Name: ' + nome + '\nCompany: ' + empresa + '\nEmail: ' + email + '\nPhone: ' + telefone + '\n\nMessage:\n' + mensagem
-    };
+    var form = document.getElementById('contact-form');
+    var formData = new FormData(form);
+    formData.set('_subject', 'New website enquiry — ' + nome);
+    formData.set('_replyto', email);
+    formData.set('_template', 'table');
+    formData.set('_captcha', 'false');
+    formData.set('Name', nome);
+    formData.set('Company', empresa);
+    formData.set('Email', email);
+    formData.set('Phone', telefone);
+    formData.set('Message', mensagem);
+    ['nome', 'empresa', 'email', 'telefone', 'mensagem'].forEach(function (k) { formData.delete(k); });
 
-    fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(payload)
-    })
+    var request = CONTACT_ENDPOINT
+      ? fetch(CONTACT_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            name: nome, company: empresa, email: email, phone: telefone,
+            message: mensagem, website: document.getElementById('website').value
+          })
+        })
+      : fetch('https://formsubmit.co/ajax/' + CONTACT_EMAIL, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: formData
+        });
+
+    request
     .then(function(res) { return res.json(); })
     .then(function(data) {
-      if (data.success) {
+      // The relay answers {ok:true}; FormSubmit answers success as a string.
+      if (data.ok === true || String(data.success) === 'true') {
         document.getElementById('contact-form').style.display = 'none';
         document.getElementById('form-success').style.display = 'block';
       } else {
-        throw new Error(data.message || 'Unknown error');
+        throw new Error(data.error || data.message || 'Unknown error');
       }
     })
     .catch(function() {
       var errMsg = document.getElementById('form-error-msg');
-      errMsg.textContent = (window._i18n_errors && window._i18n_errors.send) || 'Could not send. Try again, or call +44 7778 173575.';
+      errMsg.textContent = (window._i18n_errors && window._i18n_errors.send)
+        || ('Could not send. Try again, e-mail ' + CONTACT_EMAIL + ', or call +44 7778 173575.');
       errMsg.style.display = 'block';
     })
     .finally(function() {

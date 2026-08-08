@@ -227,7 +227,13 @@ See **`REVISION-3-CHANGELOG.md`** for the complete list. Headlines:
 - **Iconography unified on Font Awesome** across all nine pages — 21 emoji and
   every CSS text glyph replaced, so icons follow the brand palette and render
   identically on every OS.
-- **126 tests passing** (was 63). The new `tests/quality.test.js` locks in every
+- **Contact form repointed to `contact@glctechsec.com`** — it was delivering to
+  `contato@glctech.com.br` via a Web3Forms key that hid the recipient from the
+  code. Needs one activation click, see the changelog.
+- **Zoho Mail SMTP via `serverless/`** — the credential cannot live in a static
+  site, so it sits in a small relay function's environment instead. The form
+  falls back to FormSubmit until you deploy it. See `serverless/README.md`.
+- **137 tests passing** (was 63). The new `tests/quality.test.js` locks in every
   fix above.
 
 ⚠ Six items still need a human decision — they are listed at the end of

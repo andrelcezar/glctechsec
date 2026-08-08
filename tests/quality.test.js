@@ -283,3 +283,93 @@ test('no inline style overrides the responsive nav logo height', () => {
     }
   }
 });
+
+/* ── form destinations ──────────────────────────────────────────────────── */
+
+test('the contact form posts to contact@glctechsec.com', () => {
+  const s = read('index.html');
+  assert.match(s, /var CONTACT_EMAIL = 'contact@glctechsec\.com';/,
+    'contact destination is not contact@glctechsec.com');
+  assert.match(s, /formsubmit\.co\/ajax\/' \+ CONTACT_EMAIL/,
+    'the destination constant is not the one actually posted to');
+});
+
+test('no form routes to an address outside glctechsec.com', () => {
+  // Web3Forms hid the recipient behind an access key, which is how mail ended
+  // up at contato@glctech.com.br. Every destination must now be visible here.
+  for (const page of PAGES) {
+    const code = read(page).replace(/\/\*[\s\S]*?\*\//g, '');   // ignore comments
+    assert.ok(!/api\.web3forms\.com/.test(code),
+      `${page} still posts to Web3Forms, whose destination is not in the code`);
+    // Only routing addresses — form destinations and mailto targets. Input
+    // placeholders like "you@email.com" are illustrative, not recipients.
+    const routing = [
+      ...code.matchAll(/var \w*EMAIL\w* = '([^']+)'/g),
+      ...code.matchAll(/formsubmit\.co\/ajax\/([\w.+-]+@[\w.-]+)/g),
+      ...code.matchAll(/mailto:([\w.+-]+@[\w.-]+)/g),
+    ].map((m) => m[1]);
+    for (const addr of routing) {
+      assert.match(addr, /@glctechsec\.com$/, `${page} routes mail to ${addr}`);
+    }
+  }
+});
+
+test('the old glctech.com.br address survives nowhere but the explanatory comment', () => {
+  for (const page of PAGES) {
+    const code = read(page).replace(/\/\*[\s\S]*?\*\//g, '');
+    assert.ok(!/glctech\.com\.br/.test(code), `${page} still uses glctech.com.br`);
+  }
+  const i18nSrc = fs.readFileSync(path.join(ROOT, 'scripts', 'i18n.js'), 'utf8');
+  assert.ok(!/glctech\.com\.br/.test(i18nSrc), 'i18n.js still uses glctech.com.br');
+});
+
+/* ── credential hygiene ─────────────────────────────────────────────────── */
+
+test('no credential is committed anywhere in the published site', () => {
+  // The site is static: every published file is readable by any visitor.
+  const walk = (dir) =>
+    fs.readdirSync(dir, { withFileTypes: true })
+      .filter((e) => !['node_modules', '.git', '.vercel'].includes(e.name))
+      .flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]));
+
+  const secretish = [
+    /ZOHO_PASS\s*[:=]\s*['"][^'"<]/,          // an actual value, not a placeholder
+    /smtp[^\n]{0,40}pass(word)?\s*[:=]\s*['"][^'"<$]/i,
+    /Sec#\d{4}/,                               // the password shared in chat
+  ];
+  for (const f of walk(ROOT)) {
+    if (!/\.(html|js|json|md|yml|yaml|txt)$/.test(f)) continue;
+    if (f.endsWith('quality.test.js')) continue;
+    const s = fs.readFileSync(f, 'utf8');
+    for (const re of secretish) {
+      assert.ok(!re.test(s), `possible credential in ${path.relative(ROOT, f)}`);
+    }
+  }
+});
+
+test('the relay reads its credential from the environment, never a literal', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'serverless', 'api', 'contact.js'), 'utf8');
+  assert.match(src, /process\.env/, 'relay does not use environment variables');
+  assert.ok(!/pass:\s*['"][^'"]+['"]/.test(src), 'relay has a hard-coded password');
+});
+
+test('the relay only accepts requests from our own origins', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'serverless', 'api', 'contact.js'), 'utf8');
+  const origins = [...src.matchAll(/'(https:\/\/[^']+)'/g)].map((m) => m[1]);
+  assert.ok(origins.length > 0, 'no allowed origins declared');
+  for (const o of origins) {
+    assert.match(o, /glctechsec\.com$/, `relay allows ${o}`);
+  }
+});
+
+test('the contact endpoint is either blank or our own https relay', () => {
+  const m = read('index.html').match(/var CONTACT_ENDPOINT = '([^']*)'/);
+  assert.ok(m, 'CONTACT_ENDPOINT is missing');
+  if (m[1]) assert.match(m[1], /^https:\/\//, 'the relay endpoint must be https');
+});
+
+test('the form carries a honeypot the relay can check', () => {
+  const s = read('index.html');
+  assert.match(s, /id="website"[^>]*tabindex="-1"/, 'no honeypot field');
+  assert.match(s, /id="website"[^>]*aria-hidden="true"/, 'honeypot is exposed to screen readers');
+});

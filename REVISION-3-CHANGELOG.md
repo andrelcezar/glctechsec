@@ -133,8 +133,8 @@ the previous README claiming all of it was done.
 
 ## 6. Tests
 
-`tests/quality.test.js` adds 63 regression tests covering every fix above, so
-none of it can come back silently. Total suite: **126 passing**.
+`tests/quality.test.js` adds 74 regression tests covering every fix above, so
+none of it can come back silently. Total suite: **137 passing**.
 
 The icon tests are the strict ones: they assert no emoji anywhere, that every
 `::before` glyph rule ends with `font-family: "Font Awesome 6 Free"` **and**
@@ -178,6 +178,84 @@ Two bugs surfaced while doing this:
    Removed — it belongs on the `preconnect`, not the stylesheet.
 3. **`politica.html` and `termos.html` still had the nav-logo overflow bug**, hidden
    behind an inline `style="height:70px"` that beat the responsive rule.
+
+---
+
+## 8. Contact form was delivering to the wrong company
+
+Reported after the icon pass: enquiries were arriving at
+`contato@glctech.com.br` instead of `contact@glctechsec.com`.
+
+The address was **not in the code anywhere**. The form used Web3Forms, whose
+access key determines the recipient server-side — the key in the page was
+generated against the old Brazilian address, so the destination was invisible
+to anyone reading `index.html`. The site's own docs recorded it, which is how it
+was traced.
+
+Switched to FormSubmit.co, which puts the destination in the request URL:
+
+```js
+var CONTACT_EMAIL = 'contact@glctechsec.com';
+fetch('https://formsubmit.co/ajax/' + CONTACT_EMAIL, …)
+```
+
+That is now one greppable line, it matches what `trabalhe-conosco.html` already
+did, and two tests assert it — one on the destination, one forbidding any
+routing address outside `glctechsec.com`.
+
+Verified by submitting the form with the network intercepted: the POST goes to
+`https://formsubmit.co/ajax/contact@glctechsec.com`, the success state renders,
+and the failure path re-enables the button and shows an error.
+
+### ⚠ needs you
+**Click the activation link once.** FormSubmit sends a confirmation e-mail to
+`contact@glctechsec.com` on the first real submission. Until that link is
+clicked, the API returns success but nothing is delivered — so send one test
+enquiry from the live site and confirm it arrives before you rely on the form.
+
+Also cleaned up: `docs/INTEGRATIONS.md`, `docs/ARCHITECTURE.md` and
+`docs/CONTENT-EDITING.md` all documented the old address, and the Portuguese
+e-mail placeholder read `seu@email.com.br`.
+
+---
+
+## 9. Zoho Mail SMTP — relay, not credentials in the page
+
+Requested: send the contact form through Zoho Mail SMTP, with the mailbox
+password supplied.
+
+**That password cannot go in this repository.** The site is static on GitHub
+Pages: every published file is served verbatim to the visitor's browser, so an
+SMTP password in `index.html` is readable via "view source". Browsers cannot
+speak SMTP in any case — it is raw TCP on 465/587, not HTTP.
+
+Added `serverless/` — a single function that holds the credential server-side:
+
+- `smtppro.zoho.com:465`, implicit TLS, authenticated as the mailbox.
+- `From` is the authenticated mailbox (Zoho rejects anything else, and it keeps
+  SPF/DKIM aligned); the enquirer goes in `Reply-To`.
+- Credential comes from `process.env`, never a literal. `.env` is gitignored.
+- Refuses foreign origins (403), non-POST (405), invalid input (400), bots via a
+  hidden honeypot field (silent 200), and floods at 5/IP/10 min (429).
+- SMTP errors are logged server-side and never echoed to the browser, which
+  would leak the host and account name.
+
+The site keeps working throughout: `CONTACT_ENDPOINT` in `index.html` is blank
+by default and the form stays on FormSubmit. Setting it to the deployed URL
+switches to Zoho; blanking it rolls back. Both paths were tested in a browser
+with the network intercepted.
+
+Five tests now cover credential hygiene, including one that greps the whole
+tree for committed secrets.
+
+### ⚠ needs you
+1. **Rotate the Zoho password.** It was shared in chat, so treat it as
+   compromised. In Zoho the SMTP password is normally the account password —
+   that is mailbox *read* access, not just sending.
+2. **Enable 2FA, then generate an app-specific password** (Settings → Security →
+   App Passwords) and use that for the relay. It can be revoked on its own.
+3. Deploy the relay and set `CONTACT_ENDPOINT`. Steps in
+   `serverless/README.md`.
 
 ---
 

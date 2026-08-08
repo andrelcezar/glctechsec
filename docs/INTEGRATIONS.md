@@ -52,14 +52,19 @@ value is safe to be public, and how to change it.
 
 - **What:** turns the `#contact` form on `index.html` into e-mail without a
   backend. See the flow in [`ARCHITECTURE.md`](ARCHITECTURE.md#4-contact-form--web3forms).
-- **Key:** `var W3F_ACCESS_KEY = '…'` in the Web3Forms `<script>` near the
-  bottom of `index.html`.
-- **Endpoint:** `POST https://api.web3forms.com/submit` (JSON).
-- **Where the mail goes:** the inbox that owns the access key
-  (`contato@glctech.com.br`). To change the destination you create a new access
-  key at <https://web3forms.com> for the desired address and replace the value.
-- **Public?** Yes — the access key only allows *submitting* the form, not
-  reading submissions. Safe in client code.
+- **Destination:** `var CONTACT_EMAIL = 'contact@glctechsec.com'` in the
+  contact `<script>` near the bottom of `index.html`. Change that one line to
+  change where enquiries go.
+- **Endpoint:** `POST https://formsubmit.co/ajax/<destination>` (FormData).
+- **Why not Web3Forms:** its access key decided the destination server-side, so
+  the recipient was invisible in the code — and the key in use delivered to
+  `contato@glctech.com.br`, not to this site's own address. FormSubmit puts the
+  destination in the request, where it is greppable and covered by a test.
+- **Activation (once):** the first real submission triggers a confirmation
+  e-mail to the destination with an "Activate Form" link. Until it is clicked,
+  the API accepts submissions but does not deliver them.
+- **Public?** The address is in client code, but it is already published in
+  plain text in the contact block, so this exposes nothing new.
 - **Gotcha:** the form's inline error strings are localized through
   `window._i18n_errors` (populated by i18n). New error messages need keys in
   `scripts/i18n.js` (`form.err.*`).
@@ -156,7 +161,7 @@ value is safe to be public, and how to change it.
 ## `landing.html` form (Web3Forms)
 
 The "Free Diagnostic" form on `landing.html` submits to **Web3Forms**, reusing
-the **same access key and inbox** as the contact form (→ `contato@glctech.com.br`).
+FormSubmit, like the contact form, but delivering to `hr@glctechsec.com`.
 A small JS handler posts the form without a page reload and shows an inline
 success/error state; the `<form>`'s native `action="https://api.web3forms.com/submit"`
 is kept as a no-JS fallback. To change the destination, swap the access key (and

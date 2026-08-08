@@ -53,7 +53,7 @@ first for the high-level mental model.
 | `stats-snippet.html` | Reusable snippet to display live Zabbix stats | — | Reads `assets/data/stats.json` |
 
 > **`landing.html` note:** its "Free Diagnostic" `<form>` submits to
-> **Web3Forms** (same access key/inbox as the contact form → `contato@glctech.com.br`)
+> **FormSubmit.co** (destination in the request URL → `hr@glctechsec.com`)
 > via a small JS handler, with a native HTML POST fallback if JS is disabled.
 > See [`INTEGRATIONS.md`](INTEGRATIONS.md#web3forms-contact-form).
 

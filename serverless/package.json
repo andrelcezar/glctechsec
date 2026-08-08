@@ -1,0 +1,9 @@
+{
+  "name": "glctech-contact-relay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Serverless relay that sends contact-form enquiries through Zoho Mail SMTP, keeping the credential off the public static site.",
+  "dependencies": {
+    "nodemailer": "^6.9.14"
+  }
+}
