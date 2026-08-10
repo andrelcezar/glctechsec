@@ -240,7 +240,7 @@ See **`REVISION-3-CHANGELOG.md`** for the complete list. Headlines:
   a 122 MiB `workerd` binary that broke the build); `scripts/build.mjs` now
   assembles `dist/` from an allowlist — 27 files, 1.2 MB. The contact endpoint
   moved into the same Worker, so the form is same-origin at `/api/contact`.
-- **168 tests passing** (was 63). The new `tests/quality.test.js` locks in every
+- **171 tests passing** (was 63). The new `tests/quality.test.js` locks in every
   fix above.
 
 ⚠ Six items still need a human decision — they are listed at the end of

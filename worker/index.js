@@ -120,6 +120,22 @@ export default {
   async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url);
     if (pathname === '/api/contact') return handleContact(request, env, ctx);
+
+    // The ASSETS binding comes from [assets] in wrangler.toml and is attached
+    // by `wrangler deploy`. Re-publishing this Worker from the dashboard code
+    // editor drops it, which took the whole site down with an opaque
+    // "Cannot read properties of undefined (reading 'fetch')". Fail with
+    // something that names the cause instead.
+    if (!env.ASSETS) {
+      console.error(
+        'ASSETS binding missing. This version was almost certainly published from ' +
+        'the dashboard editor, which does not carry static assets. Redeploy with ' +
+        '`npx wrangler deploy`, or roll back to the last wrangler-published version.');
+      return new Response(
+        'Site temporarily unavailable. (Deploy error: static assets are not bound to this Worker version.)',
+        { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
+    }
+
     return env.ASSETS.fetch(request);
   },
 };

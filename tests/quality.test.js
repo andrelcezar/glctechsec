@@ -416,3 +416,20 @@ test('the form posts to the same-origin endpoint the Worker serves', () => {
     assert.match(endpoint, /^https:\/\//, 'a remote endpoint must be https');
   }
 });
+
+test('wrangler builds dist itself, since dist is gitignored', () => {
+  // A fresh clone has no dist/, so `wrangler deploy` failed with
+  // "assets.directory ... does not exist" whenever the host's build command
+  // was not configured. Declaring [build] makes the deploy self-contained.
+  const wrangler = fs.readFileSync(path.join(ROOT, 'wrangler.toml'), 'utf8');
+  assert.match(wrangler, /^\s*command\s*=\s*"npm run build"/m,
+    'wrangler.toml has no [build] command');
+  const ignore = fs.readFileSync(path.join(ROOT, '.gitignore'), 'utf8');
+  assert.ok(ignore.includes('dist/'), 'dist/ should stay out of version control');
+});
+
+test('wrangler is on a supported major version', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+  const v = (pkg.devDependencies || {}).wrangler || '';
+  assert.match(v, /^\^?4\./, `wrangler ${v} is out of support; Cloudflare warns on v3`);
+});

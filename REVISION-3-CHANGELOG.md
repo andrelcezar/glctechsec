@@ -133,8 +133,8 @@ the previous README claiming all of it was done.
 
 ## 6. Tests
 
-`tests/quality.test.js` adds 106 regression tests covering every fix above, so
-none of it can come back silently. Total suite: **168 passing**.
+`tests/quality.test.js` adds 109 regression tests covering every fix above, so
+none of it can come back silently. Total suite: **171 passing**.
 
 The icon tests are the strict ones: they assert no emoji anywhere, that every
 `::before` glyph rule ends with `font-family: "Font Awesome 6 Free"` **and**
@@ -340,6 +340,33 @@ missing `Origin` accepted (browsers may omit it same-origin), cross-origin
 refused, GET refused, validation, honeypot, fail-closed without secrets, and
 SMTP failure returning a clean 502.
 
+### Follow-up: two more deploy failures
+
+**`assets.directory ... /opt/buildhome/repo/dist does not exist`** — `dist/` is
+generated and gitignored, so a fresh clone has none, and the host was running
+`wrangler deploy` without `npm run build` first. Fixed by declaring the build in
+`wrangler.toml` itself:
+
+```toml
+[build]
+command = "npm run build"
+```
+
+Now `wrangler deploy` produces `dist/` on its own, so the deploy no longer
+depends on the dashboard's build command being set correctly. Verified with
+`wrangler deploy --dry-run`, which runs the custom build and reports the 27
+assets and the `ASSETS` binding, with no config warnings.
+
+**Wrangler v3 out of date** — Cloudflare warns that v3 risks "critical errors".
+Bumped to `^4.0.0` (tested against 4.120.0). `npm run deploy` is now just
+`wrangler deploy`, since chaining the build would run it twice.
+
+Also corrected `not_found_handling`: it was set to `"404-page"`, which serves
+`dist/404.html` — a file that does not exist, so the setting was aspirational.
+Set to `"none"`, which is what actually happens. A branded 404 page is worth
+adding; it needs an entry in the build allowlist and full head metadata to
+satisfy the per-page tests.
+
 ### ⚠ needs you
 ```bash
 npx wrangler secret put ZOHO_USER     # contact@glctechsec.com
@@ -347,8 +374,9 @@ npx wrangler secret put ZOHO_PASS     # app-specific password, not the account o
 npx wrangler secret put CONTACT_TO    # contact@glctechsec.com
 npm run deploy
 ```
-Set Cloudflare's build command to `npm run build` and leave the deploy command
-as `npx wrangler deploy`.
+The deploy command is `npx wrangler deploy`. A build command in the dashboard
+is no longer required — `wrangler.toml` runs it — though setting it does no
+harm beyond building twice.
 
 ---
 

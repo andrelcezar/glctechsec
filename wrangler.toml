@@ -12,11 +12,18 @@ compatibility_date = "2026-08-10"
 [observability]
 enabled = true
 
+# dist/ is generated (and gitignored), so it does not exist in a fresh clone.
+# Declaring the build here means `wrangler deploy` produces it itself, rather
+# than depending on the host's build command being configured correctly.
+[build]
+command = "npm run build"
+
 [assets]
 directory = "./dist"
 binding = "ASSETS"
-# Serve /about instead of requiring /about.html, and use 404.html-style handling.
-not_found_handling = "404-page"
+# /about resolves to /about.html (html_handling default). There is no
+# dist/404.html yet, so "404-page" would be a no-op; keep this honest.
+not_found_handling = "none"
 
 # Secrets are NOT set here. They are encrypted, and set with:
 #   npx wrangler secret put ZOHO_USER     # contact@glctechsec.com

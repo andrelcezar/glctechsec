@@ -47,3 +47,17 @@ test('smtp failure returns 502, not a stack', async () => {
   assert.strictEqual(r.status, 502);
   assert.deepStrictEqual(await r.json(), { ok:false, error:'Could not send right now.' });
 });
+
+test('a missing ASSETS binding fails with a diagnosable message, not a TypeError', async () => {
+  // Publishing from the dashboard code editor drops the assets binding and
+  // previously took the entire site down with an opaque TypeError.
+  const r = await w.fetch(new Request('https://glctechsec.com/'), { ZOHO_USER: 'x', ZOHO_PASS: 'y' }, CTX);
+  assert.strictEqual(r.status, 503);
+  assert.match(await r.text(), /static assets are not bound/);
+});
+
+test('the contact endpoint still answers without the ASSETS binding', async () => {
+  // A broken static deploy must not also take the form down.
+  const r = await w.fetch(post(GOOD, 'https://glctechsec.com'), { ZOHO_USER: 'x', ZOHO_PASS: 'y' }, CTX);
+  assert.notStrictEqual(r.status, 503);
+});

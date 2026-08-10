@@ -7,13 +7,13 @@
     "build": "node scripts/build.mjs",
     "pretest": "node scripts/check-tests-exist.mjs",
     "test": "node --test \"tests/*.test.js\" \"tests/*.test.mjs\"",
-    "deploy": "npm run build && wrangler deploy",
-    "preview": "npm run build && wrangler dev"
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "engines": {
     "node": ">=22"
   },
   "devDependencies": {
-    "wrangler": "^3.90.0"
+    "wrangler": "^4.0.0"
   }
 }
