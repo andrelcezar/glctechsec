@@ -133,8 +133,8 @@ the previous README claiming all of it was done.
 
 ## 6. Tests
 
-`tests/quality.test.js` adds 74 regression tests covering every fix above, so
-none of it can come back silently. Total suite: **137 passing**.
+`tests/quality.test.js` adds 106 regression tests covering every fix above, so
+none of it can come back silently. Total suite: **168 passing**.
 
 The icon tests are the strict ones: they assert no emoji anywhere, that every
 `::before` glyph rule ends with `font-family: "Font Awesome 6 Free"` **and**
@@ -256,6 +256,99 @@ tree for committed secrets.
    App Passwords) and use that for the relay. It can be revoked on its own.
 3. Deploy the relay and set `CONTACT_ENDPOINT`. Steps in
    `serverless/README.md`.
+
+---
+
+## 10. Cloudflare Worker — the form's own mail path
+
+Reported: the form was showing "Error sending". FormSubmit requires a one-time
+activation click on the first submission, and until that happens its API
+reports failure — which is what the page was surfacing.
+
+Rather than chase the activation, the form now has a Cloudflare option that
+drops the third-party service entirely: `serverless/cloudflare/`.
+
+**Why not nodemailer.** Workers have no Node TCP stack, so it cannot run there.
+Workers do have `connect()` from `cloudflare:sockets`, and Zoho's port 465 is
+*implicit* TLS — encrypted from the first byte, no STARTTLS to negotiate — so
+`src/smtp.js` implements the exchange directly in about 100 lines.
+
+`connect` is injected rather than imported, which makes the protocol testable
+without a network. `tests/smtp.test.js` drives it against a mock Zoho across ten
+cases: command order, implicit TLS on 465, multi-line `250-` replies, a reply
+split across TCP chunks, the lone-dot terminator, dot-stuffing a body line that
+begins with `.`, CRLF stripped from headers so `Bcc:` cannot be injected via the
+subject, auth failure that does not echo the password, refused recipient, and a
+bad greeting.
+
+`tests/worker.test.mjs` covers the eight guards around it. One of those tests
+found a real bug: `import('cloudflare:sockets')` sat outside the `try`, so a
+runtime failure there would have escaped as an unhandled rejection instead of
+the clean 502. Moved inside.
+
+The site still cannot break during the switch — `CONTACT_ENDPOINT` is blank by
+default and the form keeps its current path until you set it.
+
+### ⚠ needs you
+Rotate the Zoho password (it was shared in chat), enable 2FA, generate an
+**app-specific password**, then follow `serverless/cloudflare/README.md`. The
+credential goes into Wrangler secrets and never into the repository.
+
+---
+
+## 11. Cloudflare deploy — failing build, and a leak it would have caused
+
+The Cloudflare build failed with:
+
+```
+✘ [ERROR] Asset too large.
+  We found a file /opt/buildhome/repo/node_modules/workerd/bin/workerd
+  with a size of 122 MiB.
+```
+
+Cause: the project was set up with `assets.directory = "."`, so the deploy
+uploaded the whole repository — including the `node_modules` that wrangler had
+just installed. It read 2126 files.
+
+**The size was the lesser problem.** With the repo root as the asset directory,
+`tests/`, `docs/`, `serverless/` source and any `.dev.vars` sitting in the tree
+would have been served publicly at `glctechsec.com/...`.
+
+Fixed with an explicit build rather than an ignore list:
+
+- `scripts/build.mjs` assembles `dist/` from an **allowlist**. Anything not
+  named is not published, so a new private file cannot leak by being forgotten.
+  It fails the build if a listed page is missing, and refuses any asset over
+  Cloudflare's 25 MiB limit before the upload gets that far.
+- `wrangler.toml` (replacing the generated `wrangler.jsonc`) points
+  `assets.directory` at `./dist`.
+- Result: **27 files, 1.2 MB**, down from 2126 files.
+
+### The form moved into the same deploy
+
+Since the site is now a Worker, the contact endpoint lives with it:
+`worker/index.js` handles `/api/contact` and falls through to the static assets
+for everything else.
+
+That makes the form **same-origin** — `CONTACT_ENDPOINT = '/api/contact'`. No
+CORS preflight, no second URL to keep in sync, one deploy. The standalone
+relays in `serverless/` remain for anyone who wants to host the endpoint apart
+from the site.
+
+Eight tests cover the routing: static fall-through, same-origin accepted,
+missing `Origin` accepted (browsers may omit it same-origin), cross-origin
+refused, GET refused, validation, honeypot, fail-closed without secrets, and
+SMTP failure returning a clean 502.
+
+### ⚠ needs you
+```bash
+npx wrangler secret put ZOHO_USER     # contact@glctechsec.com
+npx wrangler secret put ZOHO_PASS     # app-specific password, not the account one
+npx wrangler secret put CONTACT_TO    # contact@glctechsec.com
+npm run deploy
+```
+Set Cloudflare's build command to `npm run build` and leave the deploy command
+as `npx wrangler deploy`.
 
 ---
 

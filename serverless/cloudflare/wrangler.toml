@@ -1,0 +1,15 @@
+name = "glctech-contact"
+main = "src/worker.js"
+compatibility_date = "2026-01-15"
+
+# Secrets are NOT set here — they are encrypted, and set with:
+#   npx wrangler secret put ZOHO_USER
+#   npx wrangler secret put ZOHO_PASS
+#   npx wrangler secret put CONTACT_TO
+#
+# Optional flood guard. Create the namespace with
+#   npx wrangler kv namespace create RATE_LIMIT
+# then paste the id below and uncomment. The Worker runs fine without it.
+# [[kv_namespaces]]
+# binding = "RATE_LIMIT"
+# id = "<paste the id wrangler prints>"

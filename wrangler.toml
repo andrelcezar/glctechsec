@@ -1,0 +1,30 @@
+# Cloudflare Workers — glctechsec.com
+#
+# IMPORTANT: assets.directory is ./dist, NOT the repo root.
+# Pointing it at "." uploads node_modules (which broke the build on a 122 MiB
+# workerd binary) and would also publish tests/, docs/ and serverless/ source.
+# dist/ is built by scripts/build.mjs from an explicit allowlist.
+
+name = "glctechsec"
+main = "worker/index.js"
+compatibility_date = "2026-08-10"
+
+[observability]
+enabled = true
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+# Serve /about instead of requiring /about.html, and use 404.html-style handling.
+not_found_handling = "404-page"
+
+# Secrets are NOT set here. They are encrypted, and set with:
+#   npx wrangler secret put ZOHO_USER     # contact@glctechsec.com
+#   npx wrangler secret put ZOHO_PASS     # Zoho app-specific password
+#   npx wrangler secret put CONTACT_TO    # contact@glctechsec.com
+
+# Optional flood guard for the contact endpoint. The Worker runs without it.
+#   npx wrangler kv namespace create RATE_LIMIT
+# [[kv_namespaces]]
+# binding = "RATE_LIMIT"
+# id = "<paste the id wrangler prints>"

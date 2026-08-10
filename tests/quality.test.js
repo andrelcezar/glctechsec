@@ -362,14 +362,57 @@ test('the relay only accepts requests from our own origins', () => {
   }
 });
 
-test('the contact endpoint is either blank or our own https relay', () => {
+test('the contact endpoint is blank, same-origin, or our own https relay', () => {
   const m = read('index.html').match(/var CONTACT_ENDPOINT = '([^']*)'/);
   assert.ok(m, 'CONTACT_ENDPOINT is missing');
-  if (m[1]) assert.match(m[1], /^https:\/\//, 'the relay endpoint must be https');
+  if (!m[1]) return;                       // blank falls back to the previous path
+  if (m[1].startsWith('/')) return;        // same-origin, routed by worker/index.js
+  assert.match(m[1], /^https:\/\//, 'a remote endpoint must be https');
 });
 
 test('the form carries a honeypot the relay can check', () => {
   const s = read('index.html');
   assert.match(s, /id="website"[^>]*tabindex="-1"/, 'no honeypot field');
   assert.match(s, /id="website"[^>]*aria-hidden="true"/, 'honeypot is exposed to screen readers');
+});
+
+/* ── Cloudflare deploy hygiene ──────────────────────────────────────────── */
+
+test('the deploy publishes dist/, never the repository root', () => {
+  // assets.directory = "." uploads node_modules (a 122 MiB workerd binary broke
+  // the build) and would publish tests/, docs/ and serverless/ source too.
+  const wrangler = fs.readFileSync(path.join(ROOT, 'wrangler.toml'), 'utf8');
+  const dir = wrangler.match(/^\s*directory\s*=\s*"([^"]+)"/m);
+  assert.ok(dir, 'no assets.directory configured');
+  assert.strictEqual(dir[1], './dist', `assets.directory is ${dir[1]}`);
+  assert.ok(!fs.existsSync(path.join(ROOT, 'wrangler.jsonc')),
+    'a stray wrangler.jsonc would override wrangler.toml');
+});
+
+test('dist is built from an allowlist, so private files cannot leak', () => {
+  const build = fs.readFileSync(path.join(ROOT, 'scripts', 'build.mjs'), 'utf8');
+  for (const page of PAGES) {
+    assert.ok(build.includes(`'${page}'`), `${page} is missing from the build allowlist`);
+  }
+  for (const secret of ['tests', 'docs', 'serverless', 'node_modules']) {
+    assert.ok(!new RegExp(`'${secret}'`).test(build), `${secret} is in the publish allowlist`);
+  }
+});
+
+test('build outputs and local secrets are gitignored', () => {
+  const ignore = fs.readFileSync(path.join(ROOT, '.gitignore'), 'utf8');
+  for (const entry of ['node_modules/', 'dist/', '.dev.vars', '.env']) {
+    assert.ok(ignore.includes(entry), `.gitignore is missing ${entry}`);
+  }
+});
+
+test('the form posts to the same-origin endpoint the Worker serves', () => {
+  const endpoint = read('index.html').match(/var CONTACT_ENDPOINT = '([^']*)'/)[1];
+  const worker = fs.readFileSync(path.join(ROOT, 'worker', 'index.js'), 'utf8');
+  if (!endpoint) return;                       // blank is a valid fallback state
+  if (endpoint.startsWith('/')) {
+    assert.ok(worker.includes(`'${endpoint}'`), `the Worker does not route ${endpoint}`);
+  } else {
+    assert.match(endpoint, /^https:\/\//, 'a remote endpoint must be https');
+  }
 });

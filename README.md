@@ -233,7 +233,14 @@ See **`REVISION-3-CHANGELOG.md`** for the complete list. Headlines:
 - **Zoho Mail SMTP via `serverless/`** — the credential cannot live in a static
   site, so it sits in a small relay function's environment instead. The form
   falls back to FormSubmit until you deploy it. See `serverless/README.md`.
-- **137 tests passing** (was 63). The new `tests/quality.test.js` locks in every
+- **Cloudflare Worker relay** (`serverless/cloudflare/`) with its own SMTP
+  client for Zoho, since `nodemailer` cannot run on Workers. A Vercel/Netlify
+  variant is also included; both share one contract.
+- **Cloudflare deploy fixed.** It was publishing the repo root (2126 files, and
+  a 122 MiB `workerd` binary that broke the build); `scripts/build.mjs` now
+  assembles `dist/` from an allowlist — 27 files, 1.2 MB. The contact endpoint
+  moved into the same Worker, so the form is same-origin at `/api/contact`.
+- **168 tests passing** (was 63). The new `tests/quality.test.js` locks in every
   fix above.
 
 ⚠ Six items still need a human decision — they are listed at the end of

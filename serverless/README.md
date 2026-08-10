@@ -1,5 +1,16 @@
 # Contact form relay — Zoho Mail SMTP
 
+> **Two implementations, same contract.** Pick one.
+>
+> - **`cloudflare/`** — Cloudflare Worker. Recommended. No third-party form
+>   service, and its own SMTP client so `nodemailer` is not needed.
+>   → [`cloudflare/README.md`](cloudflare/README.md)
+> - **`api/contact.js`** — Vercel / Netlify function using `nodemailer`.
+>   Documented below.
+>
+> Both answer `{ ok: true }` and are selected by the same `CONTACT_ENDPOINT`
+> line in `index.html`, so switching between them is a one-line change.
+
 ## Why this folder exists
 
 `glctechsec.com` is a **static site on GitHub Pages**. Every file in the repo is
