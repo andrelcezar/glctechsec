@@ -5,12 +5,13 @@
   "description": "GLCTech marketing website (static, multilingual, deployed to GitHub Pages).",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "pretest": "node scripts/check-tests-exist.mjs",
     "test": "node --test \"tests/*.test.js\" \"tests/*.test.mjs\"",
     "deploy": "npm run build && wrangler deploy",
     "preview": "npm run build && wrangler dev"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "devDependencies": {
     "wrangler": "^3.90.0"
