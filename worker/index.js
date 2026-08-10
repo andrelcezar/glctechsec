@@ -110,9 +110,17 @@ async function handleContact(request, env, ctx) {
     });
     return json({ ok: true }, 200);
   } catch (err) {
-    // The SMTP error names the host and the account — log it, never return it.
+    // The SMTP error text names the host and the account — log it, never return
+    // it. A coarse stage code is safe and saves needing `wrangler tail` to learn
+    // whether the problem is credentials, the connection, or the recipient.
     console.error('Zoho send failed:', err && err.message);
-    return json({ ok: false, error: 'Could not send right now.' }, 502);
+    const stage = {
+      greeting: 'connect', EHLO: 'connect',
+      AUTH: 'auth', username: 'auth', password: 'auth',
+      'MAIL FROM': 'sender', 'RCPT TO': 'recipient', DATA: 'send',
+      'message body': 'send',
+    }[err && err.step] || (err && err.step ? 'smtp' : 'connect');
+    return json({ ok: false, error: 'Could not send right now.', code: stage }, 502);
   }
 }
 

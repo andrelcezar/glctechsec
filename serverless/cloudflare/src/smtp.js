@@ -68,7 +68,13 @@ export async function sendMail(options) {
   const expect = async (wanted, step) => {
     const reply = await reader.read();
     if (!wanted.includes(reply.code)) {
-      throw new Error(`SMTP ${step} failed: ${reply.text.split(CRLF)[0]}`);
+      // The message names the host and account, so it is for logs only. `step`
+      // and `smtpCode` are safe to surface: they say which stage failed without
+      // revealing anything about the mailbox.
+      const err = new Error(`SMTP ${step} failed: ${reply.text.split(CRLF)[0]}`);
+      err.step = step;
+      err.smtpCode = reply.code;
+      throw err;
     }
     return reply;
   };

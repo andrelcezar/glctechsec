@@ -189,3 +189,15 @@ test('rejects a bad greeting instead of pushing on', async () => {
   const { socket } = mockSocket(script);
   await assert.rejects(() => sendMail({ ...BASE, connect: () => socket }), /greeting failed/);
 });
+
+test('a failure reports which stage broke, without leaking the reply text', async () => {
+  const { sendMail } = await loadSmtp();
+  for (const [idx, step] of [[3, 'password'], [5, 'RCPT TO']]) {
+    const script = [...OK_SCRIPT];
+    script[idx] = '535 Authentication Failed' + CRLF;
+    const { socket } = mockSocket(script);
+    const err = await sendMail({ ...BASE, connect: () => socket }).catch((e) => e);
+    assert.strictEqual(err.step, step);
+    assert.strictEqual(err.smtpCode, 535);
+  }
+});

@@ -42,10 +42,15 @@ test('fails closed without secrets', async () => {
   const r = await w.fetch(post(GOOD), { ASSETS: ENV.ASSETS }, CTX);
   assert.strictEqual(r.status, 500);
 });
-test('smtp failure returns 502, not a stack', async () => {
+test('smtp failure returns 502 with a stage code, not a stack', async () => {
   const r = await w.fetch(post(GOOD), ENV, CTX);
   assert.strictEqual(r.status, 502);
-  assert.deepStrictEqual(await r.json(), { ok:false, error:'Could not send right now.' });
+  const body = await r.json();
+  assert.strictEqual(body.ok, false);
+  assert.strictEqual(body.error, 'Could not send right now.');
+  // A coarse stage, never the SMTP reply text (which names host and account).
+  assert.match(body.code, /^(connect|auth|sender|recipient|send|smtp)$/);
+  assert.ok(!JSON.stringify(body).includes('@'), 'the response leaked an address');
 });
 
 test('a missing ASSETS binding fails with a diagnosable message, not a TypeError', async () => {
